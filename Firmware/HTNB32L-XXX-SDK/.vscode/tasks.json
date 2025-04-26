@@ -11,35 +11,35 @@
             "group": "build",
             "type": "shell",
             "command": "make.exe",
-            "args": ["-j4", "gccall", "TARGET=qcx212_0h00", "V=0", "PROJECT=MQTT_Example"]
+            "args": ["-j16", "gccall", "TARGET=qcx212_0h00", "V=1", "PROJECT=MQTT_Example"]
         },
         {
             "label": "Compile - ITTCHIP_Example",
             "group": "build",
             "type": "shell",
             "command": "make.exe",
-            "args": ["-j4", "gccall", "TARGET=qcx212_0h00", "V=0", "PROJECT=ITTCHIP_Example"]
+            "args": ["-j16", "gccall", "TARGET=qcx212_0h00", "V=1", "PROJECT=ITTCHIP_Example"]
         },
         {
             "label": "Compile - Driver_Example",
             "group": "build",
             "type": "shell",
             "command": "make",
-            "args": ["-j4", "gccall", "TARGET=qcx212_0h00", "V=0", "PROJECT=Driver_Example"]
+            "args": ["-j16", "gccall", "TARGET=qcx212_0h00", "V=1", "PROJECT=Driver_Example"]
         },
         {
             "label": "Compile - Sleep_Example",
             "group": "build",
             "type": "shell",
             "command": "make",
-            "args": ["-j4", "gccall", "TARGET=qcx212_0h00", "V=0", "PROJECT=Sleep_Example"]
+            "args": ["-j16", "gccall", "TARGET=qcx212_0h00", "V=1", "PROJECT=Sleep_Example"]
         },
         {
             "label": "Compile - HTTPS_Example",
             "group": "build",
             "type": "shell",
             "command": "make",
-            "args": ["-j4", "gccall", "TARGET=qcx212_0h00", "V=0", "PROJECT=HTTPS_Example"]
+            "args": ["-j16", "gccall", "TARGET=qcx212_0h00", "V=1", "PROJECT=HTTPS_Example"]
         },
         {
             "label": "Debug - MQTT_Example",
@@ -116,7 +116,7 @@
             "group": "build",
             "type": "shell",
             "command": "make",
-            "args": ["-j4", "gccall", "TARGET=qcx212_0h00", "V=0", "PROJECT=Slpman_Example"]
+            "args": ["-j16", "gccall", "TARGET=qcx212_0h00", "V=1", "PROJECT=Slpman_Example"]
         },
         {
             "label": "Run - Slpman_Example",
@@ -137,7 +137,7 @@
             "group": "build",
             "type": "shell",
             "command": "make",
-            "args": ["-j4", "gccall", "TARGET=qcx212_0h00", "V=0", "PROJECT=Timer_Example"]
+            "args": ["-j16", "gccall", "TARGET=qcx212_0h00", "V=1", "PROJECT=Timer_Example"]
         },
         {
             "label": "Run - Timer_Example",

@@ -51,20 +51,23 @@ static void HT_GPIO_InitButton(void);
  *******************************************************************/
 static void HT_GPIO_InitLed(void);
 
-static void HT_GPIO_Callback(void) {
-  //Save current irq mask and diable whole port interrupts to get rid of interrupt overflow
+static void HT_GPIO_Callback(void)
+{
+  // Save current irq mask and diable whole port interrupts to get rid of interrupt overflow
   uint16_t portIrqMask = GPIO_SaveAndSetIRQMask(BUTTON_INSTANCE);
 
-  if (HT_GPIO_GetInterruptFlags(BUTTON_INSTANCE) & (1 << BUTTON_PIN)) {
-      gpio_exti ^= 1;
-      HT_GPIO_ClearInterruptFlags(BUTTON_INSTANCE, 1 << BUTTON_PIN);
-      delay_us(10000000);
+  if (HT_GPIO_GetInterruptFlags(BUTTON_INSTANCE) & (1 << BUTTON_PIN))
+  {
+    gpio_exti ^= 1;
+    HT_GPIO_ClearInterruptFlags(BUTTON_INSTANCE, 1 << BUTTON_PIN);
+    delay_us(10000000);
   }
 
   HT_GPIO_RestoreIRQMask(BUTTON_INSTANCE, portIrqMask);
 }
 
-static void HT_GPIO_InitButton(void) {
+static void HT_GPIO_InitButton(void)
+{
   GPIO_InitType GPIO_InitStruct = {0};
 
   GPIO_InitStruct.af = PAD_MuxAlt0;
@@ -74,7 +77,7 @@ static void HT_GPIO_InitButton(void) {
   GPIO_InitStruct.pull = PAD_InternalPullUp;
   GPIO_InitStruct.instance = BUTTON_INSTANCE;
   GPIO_InitStruct.exti = GPIO_EXTI_ENABLE;
-  GPIO_InitStruct.interrupt_config = GPIO_InterruptFallingEdge;
+  GPIO_InitStruct.interrupt_config = GPIO_InterruptDisabled;
 
   HT_GPIO_Init(&GPIO_InitStruct);
 
@@ -83,14 +86,15 @@ static void HT_GPIO_InitButton(void) {
   HT_XIC_EnableIRQ(PXIC_Gpio_IRQn);
 }
 
-static void HT_GPIO_InitLed(void) {
+static void HT_GPIO_InitLed(void)
+{
   GPIO_InitType GPIO_InitStruct = {0};
 
   GPIO_InitStruct.af = PAD_MuxAlt0;
   GPIO_InitStruct.pad_id = LED_PAD_ID;
   GPIO_InitStruct.gpio_pin = LED_GPIO_PIN;
   GPIO_InitStruct.pin_direction = GPIO_DirectionOutput;
-  GPIO_InitStruct.init_output = 0;
+  GPIO_InitStruct.init_output = LED_OFF;
   GPIO_InitStruct.pull = PAD_AutoPull;
   GPIO_InitStruct.instance = LED_INSTANCE;
   GPIO_InitStruct.exti = GPIO_EXTI_DISABLED;
@@ -98,22 +102,29 @@ static void HT_GPIO_InitLed(void) {
   HT_GPIO_Init(&GPIO_InitStruct);
 }
 
-void HT_GPIO_App(void) {
+void HT_GPIO_App(void)
+{
 
-  ht_printf("GPIO Example Start!\n");
-  
+  ht_printf("GPIO Example Start - 5!\n");
+
   HT_GPIO_InitButton();
   HT_GPIO_InitLed();
 
   slpManNormalIOVoltSet(IOVOLT_3_30V);
 
-  while(1) {
-
-      if (gpio_exti)
-        HT_GPIO_WritePin(LED_GPIO_PIN, LED_INSTANCE, LED_ON);
-      else
-        HT_GPIO_WritePin(LED_GPIO_PIN, LED_INSTANCE, LED_OFF);
-      
+  while (1)
+  {
+    // Lê diretamente o estado do botão
+    if (GPIO_PinRead(BUTTON_INSTANCE, BUTTON_PIN) ? 0 : 1)
+    {
+      // Botão pressionado (nível baixo com pull-up)
+      HT_GPIO_WritePin(LED_GPIO_PIN, LED_INSTANCE, LED_OFF);
+    }
+    else
+    {
+      // Botão solto
+      HT_GPIO_WritePin(LED_GPIO_PIN, LED_INSTANCE, LED_ON);
+    }
   }
 }
 
