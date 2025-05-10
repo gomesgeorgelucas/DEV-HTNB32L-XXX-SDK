@@ -16,9 +16,9 @@
 #include "main.h"
 #include "FreeRTOS.h"
 #include "task.h"
-#include "queue.h"
+#include "semphr.h"
 
-QueueHandle_t xButtonQueue;
+SemaphoreHandle_t xLedSemaphore;
 
 volatile bool button_pressed = false;
 
@@ -28,19 +28,27 @@ static uint32_t uart_cntrl = (ARM_USART_MODE_ASYNCHRONOUS | ARM_USART_DATA_BITS_
 extern USART_HandleTypeDef huart1;
 
 void Task1(void *pvParameters) {
-    bool state;
+    bool lastState = false;
     while (1) {
-        state = (HT_GPIO_PinRead(CUSTOM_BUTTON_INSTANCE, CUSTOM_BUTTON_PIN) == 0); // pressionado = 0
-        xQueueSend(xButtonQueue, &state, portMAX_DELAY);
+        bool currentState = (HT_GPIO_PinRead(CUSTOM_BUTTON_INSTANCE, CUSTOM_BUTTON_PIN) == 0);
+
+        // Detectar transição de "não pressionado" para "pressionado"
+        if (currentState && !lastState) {
+            xSemaphoreGive(xLedSemaphore);
+        }
+
+        lastState = currentState;
         vTaskDelay(pdMS_TO_TICKS(50));
     }
 }
 
+
 void Task2(void *pvParameters) {
-    bool received_state;
     while (1) {
-        if (xQueueReceive(xButtonQueue, &received_state, portMAX_DELAY) == pdPASS) {
-            HT_GPIO_WritePin(BLUE_LED_PIN, BLUE_LED_INSTANCE, received_state ? LED_ON : LED_OFF);
+        if (xSemaphoreTake(xLedSemaphore, portMAX_DELAY) == pdTRUE) {
+            HT_GPIO_WritePin(BLUE_LED_PIN, BLUE_LED_INSTANCE, LED_ON);
+            vTaskDelay(pdMS_TO_TICKS(500));
+            HT_GPIO_WritePin(BLUE_LED_PIN, BLUE_LED_INSTANCE, LED_OFF);
         }
     }
 }
@@ -79,7 +87,6 @@ void init_led(void)
     GPIO_PinConfig(BLUE_LED_INSTANCE, BLUE_LED_PIN, &gpioConfig);
 }
 
-
 /**
   \fn          int main_entry(void)
   \brief       main entry function.
@@ -88,26 +95,27 @@ void init_led(void)
 void main_entry(void)
 {
     HAL_USART_InitPrint(&huart1, GPR_UART1ClkSel_26M, uart_cntrl, 115200);
-    printf("Exemplo FreeRTOS com botão e LED - E Filas\n");
+    printf("Exemplo FreeRTOS com botão e LED - E Semáforo Binário\n");
 
     init_button();
     init_led();
 
     slpManNormalIOVoltSet(IOVOLT_3_30V);
 
-    xButtonQueue = xQueueCreate(1, sizeof(bool));
-    if (xButtonQueue == NULL)
+    xLedSemaphore = xSemaphoreCreateBinary();
+    if (xLedSemaphore == NULL)
     {
-        printf("Erro ao criar a fila\n");
-        while (1);
+        printf("Erro ao criar semáforo\n");
+        while (1)
+            ;
     }
 
     xTaskCreate(Task1, "ButtonRead", 128, NULL, 1, NULL);
     xTaskCreate(Task2, "LedControl", 128, NULL, 1, NULL);
 
     vTaskStartScheduler();
-    while (1);
+    while (1)
+        ;
 }
-
 
 /******** HT Micron Semicondutores S.A **END OF FILE*/
