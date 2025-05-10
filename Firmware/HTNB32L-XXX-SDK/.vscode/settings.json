@@ -37,7 +37,16 @@
         "ht_uart_api.h": "c",
         "ht_timer_demo.h": "c",
         "ht_usart_unilog.h": "c",
-        "*.conf": "bitbake"
+        "*.conf": "bitbake",
+        "task.h": "c",
+        "freertos.h": "c",
+        "semphr.h": "c",
+        "ht_gpio_demo.h": "c",
+        "stdbool.h": "c",
+        "slpman_qcx212.h": "c",
+        "pad_qcx212.h": "c",
+        "ic_qcx212.h": "c",
+        "gpio_qcx212.h": "c"
     },
     "python.autoComplete.extraPaths": [
         "${workspaceFolder}/sources/poky/bitbake/lib",
