@@ -18,7 +18,7 @@
 #include "task.h"
 #include "semphr.h"
 
-SemaphoreHandle_t xLedSemaphore;
+SemaphoreHandle_t xUartMutex;
 
 volatile bool button_pressed = false;
 
@@ -27,29 +27,29 @@ static uint32_t uart_cntrl = (ARM_USART_MODE_ASYNCHRONOUS | ARM_USART_DATA_BITS_
 
 extern USART_HandleTypeDef huart1;
 
-void Task1(void *pvParameters) {
-    bool lastState = false;
-    while (1) {
-        bool currentState = (HT_GPIO_PinRead(CUSTOM_BUTTON_INSTANCE, CUSTOM_BUTTON_PIN) == 0);
-
-        // Detectar transição de "não pressionado" para "pressionado"
-        if (currentState && !lastState) {
-            xSemaphoreGive(xLedSemaphore);
+void Task1(void *pvParameters)
+{
+    while (1)
+    {
+        if (xSemaphoreTake(xUartMutex, portMAX_DELAY) == pdTRUE)
+        {
+            printf("Tarefa 1 executando...\n");
+            xSemaphoreGive(xUartMutex);
         }
-
-        lastState = currentState;
-        vTaskDelay(pdMS_TO_TICKS(50));
+        vTaskDelay(pdMS_TO_TICKS(500));
     }
 }
 
-
-void Task2(void *pvParameters) {
-    while (1) {
-        if (xSemaphoreTake(xLedSemaphore, portMAX_DELAY) == pdTRUE) {
-            HT_GPIO_WritePin(BLUE_LED_PIN, BLUE_LED_INSTANCE, LED_ON);
-            vTaskDelay(pdMS_TO_TICKS(500));
-            HT_GPIO_WritePin(BLUE_LED_PIN, BLUE_LED_INSTANCE, LED_OFF);
+void Task2(void *pvParameters)
+{
+    while (1)
+    {
+        if (xSemaphoreTake(xUartMutex, portMAX_DELAY) == pdTRUE)
+        {
+            printf("Tarefa 2 executando...\n");
+            xSemaphoreGive(xUartMutex);
         }
+        vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
 
@@ -95,17 +95,17 @@ void init_led(void)
 void main_entry(void)
 {
     HAL_USART_InitPrint(&huart1, GPR_UART1ClkSel_26M, uart_cntrl, 115200);
-    printf("Exemplo FreeRTOS com botão e LED - E Semáforo Binário\n");
+    printf("Exemplo FreeRTOS de Gerenciamento do Recurso UART com Mutex\n");
 
     init_button();
     init_led();
 
     slpManNormalIOVoltSet(IOVOLT_3_30V);
 
-    xLedSemaphore = xSemaphoreCreateBinary();
-    if (xLedSemaphore == NULL)
+    xUartMutex = xSemaphoreCreateMutex();
+    if (xUartMutex == NULL)
     {
-        printf("Erro ao criar semáforo\n");
+        printf("Erro ao criar mutex da UART\n");
         while (1)
             ;
     }
