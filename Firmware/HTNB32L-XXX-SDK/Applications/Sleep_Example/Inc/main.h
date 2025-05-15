@@ -49,6 +49,7 @@
 #include "debug_log.h"
 #include "ecpm_qcx212.h"
 #include "HT_Sleep_Example.h"
+#include "htnb32lxxx_hal_usart.h"
 
 #endif /*__MAIN_H__*/
 
