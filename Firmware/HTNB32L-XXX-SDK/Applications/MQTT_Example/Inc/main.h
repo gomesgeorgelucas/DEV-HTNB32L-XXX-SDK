@@ -83,38 +83,6 @@
 #define APP_EVENT_QUEUE_SIZE    (10)
 #define MAX_PACKET_SIZE         (256)
 
-#ifndef CUSTOM_BUTTON_INSTANCE
-#define CUSTOM_BUTTON_INSTANCE   0
-#endif
-
-#ifndef CUSTOM_BUTTON_PIN
-#define CUSTOM_BUTTON_PIN        10
-#endif
-
-#ifndef CUSTOM_BUTTON_PAD_ID
-#define CUSTOM_BUTTON_PAD_ID     25
-#endif
-
-#ifndef BLUE_LED_INSTANCE
-#define BLUE_LED_INSTANCE        0
-#endif
-
-#ifndef BLUE_LED_PIN
-#define BLUE_LED_PIN             3
-#endif
-
-#ifndef BLUE_LED_PAD_ID
-#define BLUE_LED_PAD_ID          14
-#endif
-
-//#ifndef LED_ON
-#define LED_ON   0
-//#endif
-
-//#ifndef LED_OFF
-#define LED_OFF  1
-//#endif
-
 #endif /* __MAIN_H__ */
 
 /************************ HT Micron Semicondutores S.A *****END OF FILE****/
